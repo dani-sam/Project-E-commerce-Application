@@ -1,4 +1,5 @@
 var db=require('../config/connection')
+var collection=require("../config/collections")
 
 
 module.exports={
@@ -11,5 +12,11 @@ module.exports={
          
      })
 
+    },
+    getAllProducts:()=>{
+        return new Promise(async(reslove,reject)=>{
+            let products=await db.get().collection(collection.PRODUCT_COLLECTION).find().toArray()
+            reslove(products)
+        })
     }
 }
