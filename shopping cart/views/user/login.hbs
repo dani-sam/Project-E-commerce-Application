@@ -1,6 +1,9 @@
 <div class="container px-4 py-5 mx-auto">
     <div class="card card0">
         <form action="/login" method="POST">
+            {{#if loginErr}}
+                <p class="error">{{loginErr}}</p>
+            {{/if}}
             <div class="card card1">
                 <div class="row justify-content-center my-auto">
                     <div class="col-md-8 col-10 my-5">
