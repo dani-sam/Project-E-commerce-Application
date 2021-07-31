@@ -88,5 +88,15 @@ module.exports = {
             ]).toArray()
             reslove(cartItems[0].cartItems)
         })
+    },
+    getCartCount:(userId)=>{
+        return new Promise(async(reslove,reject)=>{
+            let count=0
+            let cart=await db.get().collection(collection.CART_COLLECTION).findOne({user:objectId(userId)})
+            if (cart) {
+                count=cart.product.length
+            }
+            reslove(count)
+        })
     }
 }
