@@ -65,9 +65,9 @@ router.get('/logout', (req, res) => {
 })
 
 router.get('/cart', verifyLogin, async (req, res) => {
-  let products = await userHelpers.getCartProducts(req.session.user._id)
-  console.log(products);
-  res.render('user/cart', { products, user: req.session.user })
+  let product = await userHelpers.getCartProducts(req.session.user._id)
+  console.log(product);
+  res.render('user/cart', { product, user: req.session.user })
 })
 
 router.get('/add-to-cart/:id',(req, res) => {

@@ -37,64 +37,84 @@ module.exports = {
         })
     },
     addToCart: (proId, userId) => {
-        return new Promise(async (reslove, reject) => {
+        let proObj = {
+            item: objectId(proId),
+            quantity: 1
+        }
+        return new Promise(async (resolve,reject) => {
             let userCart = await db.get().collection(collection.CART_COLLECTION).findOne({ user: objectId(userId) })
             if (userCart) {
+                let proExist = userCart.product.findIndex(product => product.item == proId)
+                console.log(proExist);
+                if (proExist!=-1) {
+                    db.get().collection(collection.CART_COLLECTION)
+                        .updateOne({ 'product.item': objectId(proId) },
+                            {
+
+                                $inc:{'product.$.quantity':1}
+
+                            }
+                        ).then(()=>{
+                            resolve()
+                        })
+                }else{
                 db.get().collection(collection.CART_COLLECTION)
                 .updateOne({user:objectId(userId)},
                     {
-                        
-                            $push:{product:objectId(proId)}
-                        
+
+                            $push:{product:proObj}
+
                     }
                 ).then((response)=>{
-                    reslove()
-                })          
+                    resolve()
+                })
+            }          
             } else {
                 let cartObj = {
                     user: objectId(userId),
-                    product: (objectId(proId))
+                    product: [proObj]
                 }
                 db.get().collection(collection.CART_COLLECTION).insertOne(cartObj).then((response) => {
-                    reslove()
+                    resolve()
                 })
             }
         })
     },
-    getCartProducts:(userId)=>{
-        return new Promise(async(reslove,reject)=>{
-            let cartItems=await db.get().collection(collection.CART_COLLECTION).aggregate([
+    getCartProducts: (userId) => {
+        return new Promise(async (reslove, reject) => {
+            let cartItems = await db.get().collection(collection.CART_COLLECTION).aggregate([
                 {
-                    $match:{user:objectId(userId)}
+                    $match: { user: objectId(userId) }
+                },
+                {
+                    $unwind:'$product'
+                },
+                {
+                    $project:{
+                        item:"$product.item",
+                        quantity:"$product.quantity"
+                    }
                 },
                 {
                     $lookup:{
                         from:collection.PRODUCT_COLLECTION,
-                        let:{prodList:'$product'},
-                        pipeline:[
-                            {
-
-                                $match:{
-                                    $expr:{
-                                        $in:['$_id',"$$prodList"]
-                                    }              
-                                }
-                            }
-                        ],
-                        as:"cartItems"
-
+                        localField:"item",
+                        foreignField:"_id",
+                        as:'products'
                     }
                 }
+               
             ]).toArray()
-            reslove(cartItems[0].cartItems)
+
+            reslove(cartItems)
         })
     },
-    getCartCount:(userId)=>{
-        return new Promise(async(reslove,reject)=>{
-            let count=0
-            let cart=await db.get().collection(collection.CART_COLLECTION).findOne({user:objectId(userId)})
+    getCartCount: (userId) => {
+        return new Promise(async (reslove, reject) => {
+            let count = 0
+            let cart = await db.get().collection(collection.CART_COLLECTION).findOne({ user: objectId(userId) })
             if (cart) {
-                count=cart.product.length
+                count = cart.product.length
             }
             reslove(count)
         })
