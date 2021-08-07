@@ -48,7 +48,7 @@ module.exports = {
                 console.log(proExist);
                 if (proExist != -1) {
                     db.get().collection(collection.CART_COLLECTION)
-                        .updateOne({user:objectId(userId), 'product.item': objectId(proId) },
+                        .updateOne({ user: objectId(userId), 'product.item': objectId(proId) },
                             {
 
                                 $inc: { 'product.$.quantity': 1 }
@@ -125,19 +125,32 @@ module.exports = {
         })
     },
     changeProductQuantity: (details) => {
-         details.count=parseInt(details.count)
-         
+        details.count = parseInt(details.count)
+        details.quantity = parseInt(details.quantity)
+
         return new Promise((resolve, reject) => {
-            db.get().collection(collection.CART_COLLECTION)
-                .updateOne({_id:objectId(details.cart), 'product.item': objectId(details.products) },
-                    {
+            if (details.count == -1 && details.quantity == 1) {
+                db.get().collection(collection.CART_COLLECTION)
+                    .updateOne({ _id: objectId(details.cart) },
+                        {
+                            $pull: { product: { item: objectId(details.products) } }
+                        }
+                    ).then((response) => {
+                        resolve({ removeProducts: true })
+                    })
+            } else {
+                db.get().collection(collection.CART_COLLECTION)
+                    .updateOne({ _id: objectId(details.cart), "product.item": objectId(details.products) },
+                        {
+                            $inc: { 'product.$.quantity': details.count }
+                        }
+                    ).then((response) => {
+                        resolve(true)
+                    })
+            }
 
-                        $inc: { 'product.$.quantity':details.count }
 
-                    }
-                ).then(() => {
-                    resolve()
-                }) 
+
         })
     }
 }
