@@ -5,6 +5,7 @@
                 <tr>
                     <th scope="col">Item</th>
                     <th scope="col">Title</th>
+                    <th scope="col">Price</th>
                     <th scope="col">Quatity</th>
                     <th scope="col"></th>
                 </tr>
@@ -17,21 +18,27 @@
                     
                     <td><img style="height: 70px;width: 70px;" src="/product-image/{{this.products._id}}.jpg" alt=""></td>
                     <td>{{this.products.Name}}</td>
+                    <td>Rs.{{this.products.Price}}</td>
                     
                     <td>
                         <button class="cart-item-count mx-2" onclick="changeQuantity('{{this._id}}','{{this.products._id}}',-1)">-</button>
                         <span id="{{this.products._id}}">{{this.quantity}}</span>
                         <button class="cart-item-count ms-2" onclick="changeQuantity('{{this._id}}','{{this.products._id}}',1)">+</button>
                     </td>
-                    <td>
+                    {{!-- <td>
                         <a href="" class="btn btn-danger">Remove</a>
-                    </td>
+                    </td> --}}
                 </tr>
 
                 {{/each}}
 
             </tbody>
         </table>
+        <hr>
+        <div class="float-end pr-4">
+        <h3 class="float-end mr-4 mt-4">Total RS:100000</h3>
+        <a href="/place-order" class="btn btn-success mt-3" style="width: 100%;"><b>Place Order</b></a>
+        </div>
     </div>
 </section>
 
@@ -48,10 +55,11 @@
                 count:count,
                 quantity:quantity
             },
+            
             method:"post",
             success:(response)=>{
                 if (response.removeProducts){
-                    alert("Product Removed from cart")
+                    alert("Product Removed from cart")  
                     location.reload()
                 }else{
                     document.getElementById(proId).innerHTML=quantity+count
@@ -60,3 +68,4 @@
         })
     }
 </script>
+
